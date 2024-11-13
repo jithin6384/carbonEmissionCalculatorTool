@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carbon Foot Print Calculater</title>
+    <link
+ rel="stylesheet"
+ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+ />
+ <link rel="stylesheet" href="styles.css" />
+
+ <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        
+     
+      
+       
+      </nav>
+     {% block content %}
+
+     {% endblock %}
+
+     <script>
+        $(document).ready(function () {
+        // Signup Form Validation
+        $("hashtag#signupForm").on("submit", function (event) {
+        let isValid = true;
+        $(".error").text(""); // Clear previous errors
+       
+        const firstName = $("hashtag#firstName").val().trim();
+        const lastName = $("hashtag#lastName").val().trim();
+        const email = $("hashtag#signupEmail").val().trim();
+        const password = $("hashtag#signupPassword").val();
+        const confirmPassword = $("hashtag#confirmPassword").val();
+       
+        // Validate first and last name
+        if (firstName.length < 1) {
+        $("hashtag#firstNameError").text("First Name is required.");
+        isValid = false;
+        }
+       
+        if (lastName.length < 1) {
+        $("hashtag#lastNameError").text("Last Name is required.");
+        isValid = false;
+        }
+       
+        // Validate email
+        if (!validateEmail(email)) {
+        $("hashtag#signupEmailError").text("Please enter a valid email address.");
+        isValid = false;
+        }
+       
+        // Validate password
+        if (password.length < 6) {
+        $("hashtag#signupPasswordError").text(
+        "Password must be at least 6 characters long."
+        );
+        isValid = false;
+        }
+       
+        // Confirm password validation
+        if (password !== confirmPassword) {
+        $("hashtag#confirmPasswordError").text("Passwords do not match.");
+        isValid = false;
+        }
+       
+        if (!isValid) {
+        event.preventDefault();
+        }
+        });
+       
+        // Login Form Validation
+        $("hashtag#loginForm").on("submit", function (event) {
+        let isValid = true;
+        $("hashtag#loginEmailError").text("");
+        $("hashtag#loginPasswordError").text("");
+       
+        const email = $("hashtag#loginEmail").val().trim();
+        const password = $("hashtag#loginPassword").val();
+       
+        if (!validateEmail(email)) {
+        $("hashtag#loginEmailError").text("Please enter a valid email address.");
+        isValid = false;
+        }
+       
+        if (password.length < 6) {
+        $("hashtag#loginPasswordError").text(
+        "Password must be at least 6 characters long."
+        );
+        isValid = false;
+        }
+       
+        if (!isValid) {
+        event.preventDefault();
+        }
+        });
+       
+        // Email validation function
+        function validateEmail(email) {
+        const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return regex.test(email);
+        }
+        });
+        </script>
+</body>
+</html>
