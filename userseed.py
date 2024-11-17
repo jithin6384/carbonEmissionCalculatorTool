@@ -25,14 +25,20 @@ userList = [{"email": "johndoe@example.com",
 
 
 for user_data in userList:
-    user = User(email = user_data["email"],
-                 username= user_data["username"],
-                 company_name=user_data["company_name"],
-                 password=user_data["password"])
-    db.session.add(user);
+    try:
+        user = User(email = user_data["email"],
+                    username= user_data["username"],
+                    company_name=user_data["company_name"],
+                    password=user_data["password"])
+        db.session.add(user);
+    except Exception as error:
+        print("an error occured ", error);
 
 
 
-db.session.commit();
+try:
+ db.session.commit();
+except Exception as error:
+        print("an error occured ", error);
 
-print("users created successfully")
+print(f"{len(userList)} users created successfully")
