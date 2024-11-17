@@ -60,6 +60,8 @@ class User(db.Model, UserMixin):
         
         return check_password_hash(self.password_hash,password)
     
+    def __repr__(self):
+        return(f"name is {self.username} company name is {self.company_name}");
 
 class EnergyUsage(db.Model):
 
