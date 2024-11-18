@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField
+from wtforms import StringField, PasswordField, SubmitField,FloatField,IntegerField;
 from wtforms.validators import DataRequired,Email,EqualTo
 from wtforms import ValidationError
 
@@ -26,3 +26,22 @@ class RegistrationForm(FlaskForm):
         # Check if not None for that username!
         if User.query.filter_by(username=field.data).first():
             raise ValidationError('Sorry, that username is taken!')
+        
+# Questionaire Form
+
+class QuestionaireForm(FlaskForm):
+    # EnergyUsage Form
+    electricity_bill = FloatField("monthly electricity bill in euros", validators=[DataRequired()] )
+    natural_gas_bill = FloatField("monthly natural gas bill in euros", validators=[DataRequired()] )
+    fuel_bill = FloatField("monthly fuel bill in euros", validators=[DataRequired()] );
+
+    # Waste Selection
+
+    waste_generated = FloatField("monthly waste generated in kg", validators=[DataRequired()])
+    recycling_percentage = FloatField("percentage of waste recycled in month", validators=[DataRequired()])
+
+    # Business Travel
+    kilometers_traveled = IntegerField("how many kilometers are travlled annually for business purpose", validators=[DataRequired()]);
+    fuel_efficiency = IntegerField("Fuel efficiency of vehicles liters per 100 km", validators=[DataRequired()]);
+    
+    submit = SubmitField('Submit');

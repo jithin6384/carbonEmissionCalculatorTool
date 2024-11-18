@@ -7,9 +7,9 @@ from flask_login import LoginManager
 from flask import render_template, redirect, request, url_for, flash,abort
 from flask_login import login_user,login_required,logout_user
 from werkzeug.security import generate_password_hash,check_password_hash
-from flask_login import UserMixin
+from flask_login import UserMixin, login_required, current_user;
 
-from forms import LoginForm, RegistrationForm
+from forms import LoginForm, RegistrationForm, QuestionaireForm
 from werkzeug.security import generate_password_hash, check_password_hash
 
 login_manager = LoginManager()
@@ -77,7 +77,8 @@ class EnergyUsage(db.Model):
          self.natural_gas_bill = natural_gas_bill;
          self.fuel_bill = fuel_bill;
          self.user_id = user_id;
-
+    def __repr__(self):
+        return f"energy usage is {self.electricity_bill} and {self.fuel_bill} and {self.natural_gas_bill}"
 
 
 class Waste(db.Model):
@@ -108,13 +109,69 @@ class BuisnessTravel(db.Model):
 
 @app.route('/')
 def home():
+    print("current user ==>", current_user.energy_usage)
     return render_template('home.html')
 
 
-@app.route('/welcome')
+@app.route('/welcome',methods=['GET', 'POST'] )
 @login_required
 def welcome_user():
-    return render_template('welcome_user.html')
+    form = QuestionaireForm();
+    if(form.validate_on_submit()):
+         # check if energy_usage,waste business travel for present user already exists
+        energy_usage = EnergyUsage.query.filter_by(user_id=current_user.id).first()
+        waste = Waste.query.filter_by(user_id=current_user.id).first()
+        business_travel = BuisnessTravel.query.filter_by(user_id=current_user.id).first()
+
+        # if users doesn't exist
+        if not energy_usage:
+            energy_usage = EnergyUsage(
+                electricity_bill=form.electricity_bill.data,
+                natural_gas_bill=form.natural_gas_bill.data,
+                fuel_bill=form.fuel_bill.data,
+                user_id=current_user.id
+            )
+            db.session.add(energy_usage)
+        else:
+            energy_usage.electricity_bill = form.electricity_bill.data
+            energy_usage.natural_gas_bill = form.natural_gas_bill.data
+            energy_usage.fuel_bill = form.fuel_bill.data
+
+        # Handle Waste
+        if not waste:
+            waste = Waste(
+                waste_generated=form.waste_generated.data,
+                recycling_percantage=form.recycling_percentage.data,
+                user_id=current_user.id
+            )
+            db.session.add(waste)
+        else:
+            waste.waste_generated = form.waste_generated.data
+            waste.recycling_percantage = form.recycling_percentage.data
+        
+         # Handle Business Travel
+        if not business_travel:
+            business_travel = BuisnessTravel(
+                kilometer_traveled=form.kilometers_traveled.data,
+                fuel_efficiency=form.fuel_efficiency.data,
+                user_id=current_user.id
+            )
+            db.session.add(business_travel)
+        else:
+            business_travel.kilometer_traveled = form.kilometers_traveled.data
+            business_travel.fuel_efficiency = form.fuel_efficiency.data
+
+        # Commit all changes
+        db.session.commit()
+        flash('Data submitted successfully!', 'success')
+        return redirect(url_for('home'))
+    
+    return render_template('welcome_user.html', form=form)
+
+
+
+
+  
 
 @app.route('/logout')
 @login_required

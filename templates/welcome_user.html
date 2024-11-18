@@ -1,6 +1,24 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="jumbotron">
-  <p>Congrats! You are logged in!</p>
+  <p> Welcome {{current_user.username}} of {{current_user.company_name}}  please fill the below details of your 
+    company's overall carbon emission</p>
+    <form method="POST">
+      {# This hidden_tag is a CSRF security feature. #}
+      {{ form.hidden_tag() }}
+      <h2>Energy Usage</h2>
+       {{form.electricity_bill.label}} {{form.electricity_bill()}} <br>
+       {{form.natural_gas_bill.label}} {{form.natural_gas_bill()}} <br>
+       {{form.fuel_bill.label}} {{form.fuel_bill()}} <br>
+      <h2>Waste Generated </h2>
+      {{form.waste_generated.label}} {{form.waste_generated()}} <br>
+      {{form.recycling_percentage.label}} {{form.recycling_percentage()}} <br>
+      <h2>Business Travel</h2>
+      {{form.kilometers_traveled.label}} {{form.kilometers_traveled()}} <br>
+      {{form.fuel_efficiency.label}} {{form.fuel_efficiency()}} <br>
+      {{ form.submit() }}
+  </form>
+
+
 </div>
 {% endblock %}
