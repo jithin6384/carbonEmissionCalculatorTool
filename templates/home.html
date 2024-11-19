@@ -2,10 +2,88 @@
 {% block content %}
 <div class="jumbotron">
   {% if current_user.is_authenticated %}
-    <p>Hi {{ current_user.username }}!</p>
+    <p>Hi {{ current_user.username }} here is the energy output of your company</p>
+    <canvas id="carbonchart" width="400" height="200"></canvas>
   {% else %}
     <p>Please login or register!</p>
   {% endif %}
 </div>
+<script>
+    console.log("here ----------")
+    const carbonData = {{ carbon_data|tojson }};
+    console.log(carbonData);
+    let {values, categories} = carbonData
+    let i,j,k;
 
+    let minObj = {min: i, med: j, max: k}
+    let min = Number.POSITIVE_INFINITY;
+    let max = Number.NEGATIVE_INFINITY;
+    console.log("minObj 0 =>",minObj)
+    for(let p = 0; p < values.length; p++){
+      debugger;
+      if(min > values[p]){
+        min = values[p]
+        minObj['min'] = p;
+      }
+
+      if(max < values[p]){
+        max = values[p];
+        minObj['max'] = p;
+      }
+    }
+
+  for(let q = 0; q < values.length; q++){
+    if(minObj['min'] === q || minObj['max'] === q) continue;
+    minObj['med'] = q;
+  }
+  values = [values[minObj['min']], values[minObj['med']], values[minObj['max']]];
+  categories = [categories[minObj['min']], categories[minObj['med']], categories[minObj['max']]]
+  console.log("new  values =>", values);
+  console.log("categories =>", categories)
+  console.log("minObj 1 =>",minObj)
+
+
+
+    // if(values[0] < values[1] && values[0] < values[2]){
+    //   i = 0
+    //   if(values[1] <= values[2]){
+    //     j = 1;
+    //     k = 2;
+    //   }else{
+    //     j = 2;
+    //     k = 1;
+    //   }
+    // }
+    // if(values[1] < values[2] && values[1] < values[0]){
+    //   j = 0;
+    //   if(values[2] <= values[1]){
+         
+    //   }else{
+
+    //   }
+    // }
+    const carbonChartId = document.querySelector('#carbonchart')
+    const context = carbonChartId.getContext('2d');
+    const carbonChart = new Chart(context, {
+            type: 'bar',
+            data: {
+                labels: categories,
+                datasets: [{
+                    label: 'Carbon Footprint (kg CO2e)',
+                    data: values,
+                    backgroundColor: ['green', 'blue', 'red'],
+                    borderColor: ['rgba(75, 192, 192, 1)', 'rgba(255, 99, 132, 1)', 'rgba(255, 206, 86, 1)', 'rgba(153, 102, 255, 1)'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+  </script>
 {% endblock %}

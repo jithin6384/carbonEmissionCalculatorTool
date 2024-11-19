@@ -92,7 +92,8 @@ class Waste(db.Model):
          self.waste_generated = waste_generated;
          self.recycling_percantage = recycling_percantage;
          self.user_id = user_id;
-    
+    def __repr__(self):
+        return f"waste is {self.waste_generated} and {self.recycling_percantage}"
 
 class BuisnessTravel(db.Model):
     __tablename__ = 'business_travel';
@@ -105,12 +106,54 @@ class BuisnessTravel(db.Model):
          self.kilometer_traveled = kilometer_traveled;
          self.fuel_efficiency = fuel_efficiency;
          self.user_id = user_id;
-
+    def __repr__(self):
+        return f"waste is {self.kilometer_traveled} and {self.fuel_efficiency}"
 
 @app.route('/')
 def home():
-    print("current user ==>", current_user.energy_usage)
-    return render_template('home.html')
+    print("current user energy usage ==>", current_user.energy_usage)
+    print("current user  waste generated => ", current_user.waste)
+    print("current user  business travel => ", current_user.buisness_travel);
+    # f"energy usage is {self.electricity_bill} and {self.fuel_bill} and {self.natural_gas_bill}"
+    # calculating energy usage for the current user
+    electricity_bill = 0;
+    fuel_bill = 0;
+    natural_gas_bill = 0;
+    energy_footprint = 0;
+
+    # energy_co2 = (electricity_bill * 12 * 0.0005) + (natural_gas_bill * 12 * 0.0053) + (fuel_bill * 12 * 2.32)
+    # waste_co2 = (waste_generated * 12) * (0.57 - (recycling_percentage / 100))
+    # travel_co2 = (travel_distance / 1) * (fuel_efficiency / 100) * 2.31
+    if(current_user.energy_usage):
+         electricity_bill =  current_user.energy_usage.electricity_bill
+         fuel_bill = current_user.energy_usage.fuel_bill
+         natural_gas_bill = current_user.energy_usage.natural_gas_bill
+         energy_footprint = (electricity_bill * 12 * 0.0005) + (natural_gas_bill * 12 * 0.0053) + (fuel_bill * 12 * 2.32)
+         print("electricity bill",electricity_bill );
+         print("energy_footprint", energy_footprint);
+    
+    # calculating waste generated for current user
+    waste_generated = 0;
+    recycling_percentage = 0;
+
+    if(current_user.waste):
+        waste_generated = current_user.waste.waste_generated;
+        recycling_percentage = current_user.waste.recycling_percantage
+        waste_footprint = (waste_generated * 12) * (0.57 - (recycling_percentage / 100));
+    
+    # calculating business travel 
+    travel_distance = 0;
+    fuel_efficiency = 0;
+    if(current_user.buisness_travel):
+        travel_distance = current_user.buisness_travel.kilometer_traveled;
+        fuel_efficiency = current_user.buisness_travel.fuel_efficiency
+        travel_footprint = (travel_distance / 1) * (fuel_efficiency / 100) * 2.31
+   
+    carbon_data = { 
+         "categories": ["energy_footprint", "waste_footprint", "travel_footprint", ],
+         "values": [energy_footprint, waste_footprint, travel_footprint]
+    }
+    return render_template('home.html', carbon_data = carbon_data )
 
 
 @app.route('/welcome',methods=['GET', 'POST'] )
