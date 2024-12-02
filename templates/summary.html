@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+{% block content %}
+  <div class="container">
+     <h2> Summaries</h2>
+     <table class="table">
+        <thead>
+             <th>Company</th>
+             <th>Energy Footprint</th>
+             <th>Waste Footprint</th>
+             <th>Travel Footprint</th>
+             <th>Total Footprint</th>
+        </thead>
+        <tbody>
+            {% for company in company_summaries  %}
+              <tr>
+                <td>{{company.company_name}}</td>
+                <td>{{(company.energy_footprint)}}</td>
+                <td>{{company.waste_footprint}}</td>
+                <td>{{company.travel_footprint}}</td>
+                <td>{{company.total_footprint}}</td>
+              </tr>
+            {% endfor %}
+        </tbody>
+     </table>
+     <div>
+        <p style="font-size: 1.5rem; font-weight: bold;">Best performing company in terms of controlling carbon emission is <span style="color: green; border: white 1px solid; background-color: antiquewhite;">{{company_summaries[0].company_name}}</span></p>
+     </div>
+     <canvas id="summarychart" class="summarychart" width="800" height="400"></canvas>
+     <nav aria-label="...">
+        <ul class="pagination">
+          
+        </ul>
+      </nav>
+  </div>
+
+ <script>
+//     const company_summaries  = [
+//     { company_name: "energy tech", energy_footprint: 55773, waste_footprint: 3239, travel_footprint: 2310, total_footprint: 61322 },
+//     { company_name: "globalcorp", energy_footprint: 69669, waste_footprint: 564, travel_footprint: 2310, total_footprint: 72543 },
+//     { company_name: "green tech", energy_footprint: 49000, waste_footprint: 2100, travel_footprint: 3000, total_footprint: 54100 },
+//     { company_name: "ecohub", energy_footprint: 67000, waste_footprint: 1500, travel_footprint: 2200, total_footprint: 70700 },
+//     { company_name: "future corp", energy_footprint: 42000, waste_footprint: 3200, travel_footprint: 2500, total_footprint: 47700 },
+//     { company_name: "clean energy", energy_footprint: 75000, waste_footprint: 1200, travel_footprint: 4000, total_footprint: 80200 },
+//     { company_name: "solarpower", energy_footprint: 62000, waste_footprint: 1900, travel_footprint: 2100, total_footprint: 66000 },
+//     { company_name: "greentech innovators", energy_footprint: 58000, waste_footprint: 1700, travel_footprint: 2900, total_footprint: 62600 },
+// ];
+const company_summaries  = {{company_summaries| tojson}};
+    const pag_number = Math.ceil(company_summaries.length/3);
+    const pagination = document.querySelector('.pagination');
+    let pagEl = '<li class="page-item "><span class="page-link">Previous</span></li>'
+    for(let i = 1; i <= pag_number; i++){
+        if(i == 1){
+            pagEl += ` <li class="page-item active ${'cur'+i}"><a class="page-link" href="#">${i}</a></li>`
+        }else{
+             pagEl += ` <li class="page-item ${'cur'+i}"><a class="page-link" href="#">${i}</a></li>`
+        }
+       
+    }
+    pagEl += '<li class="page-item"><a class="page-link" href="#">Next</a></li>'
+    pagination.innerHTML = pagEl;
+    console.log("company summary =>", company_summaries)
+    
+    // const energyData = company_summaries.map(company => company.energy_footprint);
+    // const wasteData = company_summaries.map(company => company.waste_footprint);
+    // const travelData = company_summaries.map(company => company.travel_footprint);
+    let adminChart = null
+    function displayGraph(currentPage){
+        const labels = company_summaries.slice(currentPage, currentPage + 3).map(company => company.company_name);
+        const travelFootprint = company_summaries.map(company => company.total_footprint);
+    const ctx = document.getElementById('summarychart').getContext('2d');
+    if(adminChart){
+        adminChart.destroy();
+    }
+     adminChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [
+            
+                {
+                    label: 'Total Footprint (kg CO2e)',
+                    data: travelFootprint,
+                    backgroundColor: 'blue',
+                }
+            ],
+        },
+        options: {
+            responsive: true,
+            scales: {
+                x: {
+                    stacked: true,
+                    title: {
+                            display: true,
+                            text: 'Companies'
+                        },
+                        align: 'middle',
+                        color: 'black',
+                        font: {
+                          size: 14,
+                          weight: 'bold'
+                        }
+                },
+                y: {
+                    beginAtZero: true,
+                    title: {
+                            display: true,
+                            text: "Travel Footprint (kg CO2e)"
+                        },
+                        align: 'middle',
+                        color: 'black',
+                        font: {
+                          size: 14,
+                          weight: 'bold'
+                        }
+                },
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(tooltipItem) {
+                            return `${tooltipItem.dataset.label}: ${tooltipItem.raw.toFixed(2)} kg CO2e`;
+                        },
+                    },
+                },
+            },
+        },
+    });
+    }
+    const active = document.querySelector('.active')
+    let currentPage = !isNaN(Number(active.children[0].textContent)) ? Number(active.children[0].textContent) - 1 : 0 ;
+    displayGraph(currentPage)
+    document.querySelector('.pagination').addEventListener('click', function(event){
+        const curEl = event.target;
+        console.log('curEl =>', curEl);
+        if(!isNaN(Number(curEl.textContent))){
+            let activeClass = document.querySelector('.active');
+            activeClass?.classList?.remove('active')
+            let curActive = document.querySelector(`.${'cur' + curEl.textContent}`);
+            curActive?.classList?.add('active')
+            currentPage = Number(curEl.textContent) - 1;
+            displayGraph(currentPage)
+        }
+        if(curEl.textContent === 'Previous'){
+            if(currentPage == 0){
+                return;
+            }
+            let activeClass = document.querySelector('.active');
+            activeClass?.classList?.remove('active')
+            
+            let curActive = document.querySelector(`.${'cur' + currentPage}`);
+            curActive?.classList?.add('active')
+            currentPage -= 1;           
+            displayGraph(currentPage)
+            
+        }
+        if(curEl.textContent === 'Next'){
+            if((currentPage + 1) == pag_number ){
+      
+                return;
+            }
+            
+            let activeClass = document.querySelector('.active');
+            activeClass?.classList?.remove('active')
+            currentPage += 1;
+            let curActive = document.querySelector(`.${'cur' + (currentPage + 1)}`);
+            curActive.classList.add('active')
+            debugger;
+            console.log("currentPage =>", currentPage)
+              
+            displayGraph(currentPage)
+            
+        }
+    })
+
+ </script>
+{% endblock %}

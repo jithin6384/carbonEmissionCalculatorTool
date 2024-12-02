@@ -300,5 +300,38 @@ def register():
         return redirect(url_for('login'))
     return render_template('register.html', form=form)
 
+@app.route('/summary', methods=['GET'])
+@login_required
+def summary():
+    users = User.query.all();
+    company_summaries = [];
+    print('users => ', users)
+    for user in users:
+        print('user company name', user.company_name)
+        if user.company_name:
+            company_data = {'energy_footprint': 0, 'waste_footprint' : 0, 'travel_footprint' : 0, 'total_footprint': 0, 'company_name' :  user.company_name}
+            if user.energy_usage:
+                electricity_bill =  user.energy_usage.electricity_bill
+                fuel_bill = user.energy_usage.fuel_bill
+                natural_gas_bill = user.energy_usage.natural_gas_bill
+                energy_footprint = (electricity_bill * 12 * 0.0005) + (natural_gas_bill * 12 * 0.0053) + (fuel_bill * 12 * 2.32);
+                company_data['energy_footprint'] = int(energy_footprint);
+                company_data['total_footprint'] = company_data['total_footprint'] + int(energy_footprint);
+            
+            if(user.waste):
+                waste_generated = user.waste.waste_generated;
+                recycling_percentage = user.waste.recycling_percantage
+                waste_footprint = (waste_generated * 12) * (0.57 - (recycling_percentage / 100));
+                company_data['waste_footprint'] = int(waste_footprint);
+                company_data['total_footprint'] = company_data['total_footprint'] + int(waste_footprint);
+            if(user.buisness_travel):
+                travel_distance = user.buisness_travel.kilometer_traveled;
+                fuel_efficiency = user.buisness_travel.fuel_efficiency
+                travel_footprint = (travel_distance / 1) * (fuel_efficiency / 100) * 2.31;
+                company_data["travel_footprint"] = int(travel_footprint);
+                company_data['total_footprint'] = company_data['total_footprint'] + int(travel_footprint);
+            company_summaries.append(company_data);
+    company_summaries = sorted(company_summaries, key= lambda x: x["total_footprint"])
+    return  render_template('summary.html', company_summaries = company_summaries);
 if __name__ == '__main__':
     app.run(debug=True)
