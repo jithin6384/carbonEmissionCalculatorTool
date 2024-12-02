@@ -1,26 +1,46 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="jumbotron">
+
   {% if current_user.is_authenticated %}
-    <p>Hi {{ current_user.username }} here is the energy output of your company</p>
-    <canvas id="carbonchart" width="400" height="200"></canvas>
+  <div class="jumbotron" style="background-color: white;"></div>
+    <p style="text-align: center;">Hi {{ current_user.username }} here is the energy output of your company <span style="text-transform: uppercase;font-weight: bold;">{{current_user.company_name}}</span></p>
+    <p style="text-align: center;">If you want you can edit your information by visiting <a href="{{ url_for('welcome_user') }}"> here</a></p>
+    <div class="chart-container">
+      <canvas id="carbonchart" class="carbonchart" width="500" height="450"></canvas>
+   
+      <div id="suggestions" class="suggestion">
+       
+      </div>
+
+      <button id="download-pdf" class="btn btn-primary">Download pdf</button>
+    </div>
+    
+  </div>
   {% else %}
-    <p>Please login or register!</p>
+  
+    <div class='backgroundimage' >
+      <p style="text-align: center; padding-top: 20px; font-size: 1.5rem">Please  <a href="{{ url_for('login') }}">LogIn</a>
+        or <a href="{{ url_for('register') }}">Register</a> to know about the carbon footprint generation of your company</p>
+  </div>
   {% endif %}
-</div>
+
 <script>
     console.log("here ----------")
+    
+    const suggestions = {{suggestions| tojson}};
+    const companyName = `{{company_name}}`;
+    console.log("suggestions ==>", suggestions);
+    console.log("company Name =>", companyName);
     const carbonData = {{ carbon_data|tojson }};
     console.log(carbonData);
     let {values, categories} = carbonData
     let i,j,k;
-
+    
     let minObj = {min: i, med: j, max: k}
     let min = Number.POSITIVE_INFINITY;
     let max = Number.NEGATIVE_INFINITY;
     console.log("minObj 0 =>",minObj)
     for(let p = 0; p < values.length; p++){
-      debugger;
       if(min > values[p]){
         min = values[p]
         minObj['min'] = p;
@@ -69,7 +89,7 @@
             data: {
                 labels: categories,
                 datasets: [{
-                    label: 'Carbon Footprint (kg CO2e)',
+                    label: 'Carbon Footprint Display Chart',
                     data: values,
                     backgroundColor: ['green', 'blue', 'red'],
                     borderColor: ['rgba(75, 192, 192, 1)', 'rgba(255, 99, 132, 1)', 'rgba(255, 206, 86, 1)', 'rgba(153, 102, 255, 1)'],
@@ -79,11 +99,91 @@
             options: {
                 scales: {
                     y: {
-                        beginAtZero: true
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: "Carbon Footprint (kg CO2e)"
+                        },
+                        align: 'middle',
+                        color: 'black',
+                        font: {
+                          size: 14,
+                          weight: 'bold'
+                        }
+
+                    },
+                    x: {
+                        
+                        title: {
+                            display: true,
+                            text: `Categories(max shown in red lowest in green)`
+                        },
+                        align: 'middle',
+                        color: 'black',
+                        font: {
+                          size: 14,
+                          weight: 'bold'
+                        }
+
                     }
                 }
             }
         });
+      if(suggestions.length){
+         
+        //  [category_1,category_2, category_3 ]
+         suggestiondoc = document.getElementById('suggestions');
 
+         para = `<p style="text-decoration: underline; font-weight: bold; font-size: large;">Suggestions to improve carbon footprints for <span style='font-weight: bold; color: #007BFF; background-color: #f0f8f5; padding: 0 5px; border-radius: 5px; '>${companyName[0].toUpperCase() + companyName.slice(1)}</span></p>`
+         for(let i = categories.length - 1; i >= 0; i--){
+       
+            let [category1, category2] = categories[i].split('_')
+            category1 = category1[0].toUpperCase() + category1.slice(1);
+            category2 = category2[0].toUpperCase() + category2.slice(1);
+            para += `<div class=${'category_priority_' + (i+1)}>${category1} ${category2}</div>`;
+            para += '<ul>'
+            for(let j = 0; j < suggestions[0][categories[i]].length; j++){
+              para += `<li>${suggestions[0][categories[i]][j]}</li>`
+            }
+            para += '</ul>'
+         }
+        // for (let i = 0; i< suggestions.length; i++){
+          
+          
+        // }
+        suggestiondoc.innerHTML = para;
+      }
+
+      const downloadPdf = document.querySelector('#download-pdf');
+
+      if(downloadPdf){
+        downloadPdf.addEventListener('click', function(e){
+          const chartElement = document.getElementById('carbonchart');
+          let suggestionElement;
+        
+          if(suggestions.length){
+            suggestionElement = document.getElementById('suggestions');
+          }
+          
+          const { jsPDF } = window.jspdf;
+          const pdf = new jsPDF();
+          
+          html2canvas(chartElement).then((canvas) => {
+            const canvasImg = canvas.toDataURL('image/png');
+            pdf.addImage(canvasImg, 'PNG', 10, 10, 180, 90);
+            if(suggestionElement){
+            pdf.text(10, 110, "Suggestions:");
+             suggestions.forEach((suggestion, index) => {
+             pdf.text(10, 120 + index * 10, `${index + 1}. ${suggestion}`);
+             });
+            // pdf.save('carbon_footprint.pdf');
+            }
+          })
+
+        
+
+            pdf.save('carbon_footprint.pdf');
+        })
+      }
   </script>
 {% endblock %}

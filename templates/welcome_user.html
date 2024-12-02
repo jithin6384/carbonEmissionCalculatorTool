@@ -1,19 +1,19 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="jumbotron">
-  <p> Welcome {{current_user.username}} of {{current_user.company_name}}  please fill the below details of your 
-    company's overall carbon emission</p>
+<div class="jumbotron ">
+  <h2 style="font-size: 1.6rem; font-weight: bold; margin-bottom: 20px;"> Welcome {{current_user.username}} of {{current_user.company_name}}  please fill the below details of your 
+    company's overall carbon emission</h2>
     <form method="POST">
       {# This hidden_tag is a CSRF security feature. #}
       {{ form.hidden_tag() }}
-      <h2>Energy Usage</h2>
+      <h3 style="font-size: 1.5rem; font-weight: 900;">Energy Usage</h3>
        {{form.electricity_bill.label}} {{form.electricity_bill()}} <br>
        {{form.natural_gas_bill.label}} {{form.natural_gas_bill()}} <br>
        {{form.fuel_bill.label}} {{form.fuel_bill()}} <br>
-      <h2>Waste Generated </h2>
+      <h3 style="font-size: 1.5rem; font-weight: 900;">Waste Generated </h3>
       {{form.waste_generated.label}} {{form.waste_generated()}} <br>
       {{form.recycling_percentage.label}} {{form.recycling_percentage()}} <br>
-      <h2>Business Travel</h2>
+      <h3 style="font-size: 1.5rem; font-weight: 900;">Business Travel</h3>
       {{form.kilometers_traveled.label}} {{form.kilometers_traveled()}} <br>
       {{form.fuel_efficiency.label}} {{form.fuel_efficiency()}} <br>
       {{ form.submit() }}

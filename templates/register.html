@@ -1,6 +1,9 @@
 {% extends "base.html" %}
 {% block content %}
-<form method="POST">
+<div class="backgroundimage">
+<div class="container " style=" margin-left: 20px;">
+    <p style="font-weight: bolder; padding-top: 10px; font-size: 1.2rem;">Register your details to use the carbon foot print generator</p>
+<form method="POST" class="registrationForm">
     {# This hidden_tag is a CSRF security feature. #}
     {{ form.hidden_tag() }}
     {{ form.email.label }} {{ form.email() }}<br>
@@ -10,4 +13,6 @@
     {{ form.pass_confirm.label }} {{ form.pass_confirm() }}<br>
     {{ form.submit() }}
 </form>
+</div>
+</div>
 {% endblock %}
