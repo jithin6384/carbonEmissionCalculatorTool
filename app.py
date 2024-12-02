@@ -111,49 +111,82 @@ class BuisnessTravel(db.Model):
 
 @app.route('/')
 def home():
-    print("current user energy usage ==>", current_user.energy_usage)
-    print("current user  waste generated => ", current_user.waste)
-    print("current user  business travel => ", current_user.buisness_travel);
+    # print("current user energy usage ==>", current_user.energy_usage)
+    # print("current user  waste generated => ", current_user.waste)
+    # print("current user  business travel => ", current_user.buisness_travel);
     # f"energy usage is {self.electricity_bill} and {self.fuel_bill} and {self.natural_gas_bill}"
     # calculating energy usage for the current user
     electricity_bill = 0;
     fuel_bill = 0;
     natural_gas_bill = 0;
     energy_footprint = 0;
+    carbon_data = {};
+    suggestions = [];
+    company_name = ''
+    print("current user is authenticated =>", current_user.is_authenticated);
+    if(current_user.is_authenticated):
+        if(current_user.energy_usage):
+            electricity_bill =  current_user.energy_usage.electricity_bill
+            fuel_bill = current_user.energy_usage.fuel_bill
+            natural_gas_bill = current_user.energy_usage.natural_gas_bill
+            energy_footprint = (electricity_bill * 12 * 0.0005) + (natural_gas_bill * 12 * 0.0053) + (fuel_bill * 12 * 2.32)
+            print("electricity bill",electricity_bill );
+            print("energy_footprint", energy_footprint);
+        
+        # calculating waste generated for current user
+        waste_generated = 0;
+        recycling_percentage = 0;
 
-    # energy_co2 = (electricity_bill * 12 * 0.0005) + (natural_gas_bill * 12 * 0.0053) + (fuel_bill * 12 * 2.32)
-    # waste_co2 = (waste_generated * 12) * (0.57 - (recycling_percentage / 100))
-    # travel_co2 = (travel_distance / 1) * (fuel_efficiency / 100) * 2.31
-    if(current_user.energy_usage):
-         electricity_bill =  current_user.energy_usage.electricity_bill
-         fuel_bill = current_user.energy_usage.fuel_bill
-         natural_gas_bill = current_user.energy_usage.natural_gas_bill
-         energy_footprint = (electricity_bill * 12 * 0.0005) + (natural_gas_bill * 12 * 0.0053) + (fuel_bill * 12 * 2.32)
-         print("electricity bill",electricity_bill );
-         print("energy_footprint", energy_footprint);
-    
-    # calculating waste generated for current user
-    waste_generated = 0;
-    recycling_percentage = 0;
+        if(current_user.waste):
+            waste_generated = current_user.waste.waste_generated;
+            recycling_percentage = current_user.waste.recycling_percantage
+            waste_footprint = (waste_generated * 12) * (0.57 - (recycling_percentage / 100));
+        
+        # calculating business travel 
+        travel_distance = 0;
+        fuel_efficiency = 0;
+        if(current_user.buisness_travel):
+            travel_distance = current_user.buisness_travel.kilometer_traveled;
+            fuel_efficiency = current_user.buisness_travel.fuel_efficiency
+            travel_footprint = (travel_distance / 1) * (fuel_efficiency / 100) * 2.31
+        suggestions = [{"energy_footprint": [], "waste_footprint": [], "travel_footprint" : []}]
+       
+            
+       
 
-    if(current_user.waste):
-        waste_generated = current_user.waste.waste_generated;
-        recycling_percentage = current_user.waste.recycling_percantage
-        waste_footprint = (waste_generated * 12) * (0.57 - (recycling_percentage / 100));
+        # Energy Usage Suggestions
+        if electricity_bill > 5000:
+            suggestions[0]["energy_footprint"].append("Switch to energy-efficient appliances and LED bulbs.")
+            
+        if natural_gas_bill > 1000:
+            suggestions[0]["energy_footprint"].append("Improve insulation or switch to renewable energy sources.")
+        
+        if fuel_bill > 1000:
+            suggestions[0]["energy_footprint"].append("Use public transport, carpool, or switch to electric vehicles.")
+        
+        # Waste Reduction Suggestions
+        if recycling_percentage < 50:
+            
+            suggestions[0]["waste_footprint"].append("Increase recycling efforts and compost organic waste.")
+        if waste_generated > 100:
+            suggestions[0]["waste_footprint"].append("Reduce single-use plastics and re-use products.")
+
+        # Business Travel Suggestions
+        if travel_distance > 10000:
+            suggestions[0]["travel_footprint"].append("Reduce travel through virtual meetings.")
+        if fuel_efficiency > 8:
+           suggestions[0]["travel_footprint"].append("Switch to fuel-efficient or electric vehicles.")
+
     
-    # calculating business travel 
-    travel_distance = 0;
-    fuel_efficiency = 0;
-    if(current_user.buisness_travel):
-        travel_distance = current_user.buisness_travel.kilometer_traveled;
-        fuel_efficiency = current_user.buisness_travel.fuel_efficiency
-        travel_footprint = (travel_distance / 1) * (fuel_efficiency / 100) * 2.31
-   
-    carbon_data = { 
-         "categories": ["energy_footprint", "waste_footprint", "travel_footprint", ],
-         "values": [energy_footprint, waste_footprint, travel_footprint]
-    }
-    return render_template('home.html', carbon_data = carbon_data )
+        carbon_data = { 
+            "categories": ["energy_footprint", "waste_footprint", "travel_footprint", ],
+            "values": [energy_footprint, waste_footprint, travel_footprint]
+        }
+        if(current_user.company_name is not None):
+           company_name = current_user.company_name;
+
+        
+    return render_template('home.html', carbon_data = carbon_data, suggestions = suggestions, company_name = company_name )
 
 
 @app.route('/welcome',methods=['GET', 'POST'] )
@@ -165,7 +198,7 @@ def welcome_user():
         energy_usage = EnergyUsage.query.filter_by(user_id=current_user.id).first()
         waste = Waste.query.filter_by(user_id=current_user.id).first()
         business_travel = BuisnessTravel.query.filter_by(user_id=current_user.id).first()
-
+         
         # if users doesn't exist
         if not energy_usage:
             energy_usage = EnergyUsage(
@@ -243,7 +276,10 @@ def login():
             next = request.args.get('next')
 
             if next == None or not next[0]=='/':
-                next = url_for('welcome_user')
+                if(user.buisness_travel or user.energy_usage or user.waste):
+                  next = url_for('home')
+                else:
+                  next = url_for('welcome_user')
 
             return redirect(next)
     return render_template('login.html', form=form)
