@@ -1,0 +1,26 @@
+# Core Flask framework for building the web app
+Flask==2.3.2
+
+# Optional: Flask extensions (use based on your project’s specific needs)
+Flask-WTF==1.0.1           # Form handling (only if you have user input forms)
+Flask-Login==0.6.2         # User session management, if required
+
+# Data handling and analysis libraries
+pandas==2.1.1              # For data manipulation
+numpy==1.26.0              # For numerical calculations
+matplotlib==3.8.0          # For plotting data (optional)
+seaborn==0.12.2            # For enhanced data visualization (optional)
+
+# Report generation libraries
+reportlab==3.6.13          # For PDF report generation (optional)
+xlsxwriter==3.1.6          # For Excel report generation (optional)
+pdfkit==1.0.0              # Requires wkhtmltopdf system dependency (if using PDF generation)
+
+# Environment configuration (optional)
+python-dotenv==1.0.0       # To manage environment variables securely
+
+# Error handling (optional)
+Flask-Error-Handler==0.4.2 # For custom error handling if needed
+
+# Any additional libraries you specifically use in your code
+
