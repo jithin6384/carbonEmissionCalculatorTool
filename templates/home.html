@@ -164,6 +164,7 @@
           if(suggestions.length){
             suggestionElement = document.getElementById('suggestions');
           }
+        
           
           const { jsPDF } = window.jspdf;
           const pdf = new jsPDF();
@@ -172,17 +173,16 @@
             const canvasImg = canvas.toDataURL('image/png');
             pdf.addImage(canvasImg, 'PNG', 10, 10, 180, 90);
             if(suggestionElement){
-            pdf.text(10, 110, "Suggestions:");
-             suggestions.forEach((suggestion, index) => {
-             pdf.text(10, 120 + index * 10, `${index + 1}. ${suggestion}`);
-             });
-            // pdf.save('carbon_footprint.pdf');
+              const suggestionText = suggestionElement.innerText;
+              const lines = pdf.splitTextToSize(suggestionText, 180); // Wrap text to fit the PDF width
+              pdf.text(10, 110, lines);
+              pdf.save('carbon_footprint.pdf');
             }
           })
 
         
 
-            pdf.save('carbon_footprint.pdf');
+           
         })
       }
   </script>
