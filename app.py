@@ -266,7 +266,7 @@ def login():
         user = User.query.filter_by(email=form.email.data).first()
        
 
-        if user.check_password(form.password.data) and user is not None:
+        if user is not None and user.check_password(form.password.data) :
         
 
             login_user(user)
