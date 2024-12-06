@@ -2,6 +2,9 @@
 {% block content %}
   <div class="container">
      <h2> Summaries</h2>
+     <h3>The companies with least carbon Footprint are shown in increasing order </h3> 
+      <h3>with maximum of three companies in every page</h3>
+        
      <table class="table">
         <thead>
              <th>Company</th>
@@ -10,16 +13,8 @@
              <th>Travel Footprint</th>
              <th>Total Footprint</th>
         </thead>
-        <tbody>
-            {% for company in company_summaries  %}
-              <tr>
-                <td>{{company.company_name}}</td>
-                <td>{{(company.energy_footprint)}}</td>
-                <td>{{company.waste_footprint}}</td>
-                <td>{{company.travel_footprint}}</td>
-                <td>{{company.total_footprint}}</td>
-              </tr>
-            {% endfor %}
+        <tbody id="tablebody">
+           
         </tbody>
      </table>
      <div>
@@ -46,7 +41,8 @@
 // ];
 const company_summaries  = {{company_summaries| tojson}};
     const pag_number = Math.ceil(company_summaries.length/3);
-    const pagination = document.querySelector('.pagination');
+    if(pag_number > 1){
+        const pagination = document.querySelector('.pagination');
     let pagEl = '<li class="page-item "><span class="page-link">Previous</span></li>'
     for(let i = 1; i <= pag_number; i++){
         if(i == 1){
@@ -58,6 +54,8 @@ const company_summaries  = {{company_summaries| tojson}};
     }
     pagEl += '<li class="page-item"><a class="page-link" href="#">Next</a></li>'
     pagination.innerHTML = pagEl;
+    }
+    
     console.log("company summary =>", company_summaries)
     
     // const energyData = company_summaries.map(company => company.energy_footprint);
@@ -65,8 +63,41 @@ const company_summaries  = {{company_summaries| tojson}};
     // const travelData = company_summaries.map(company => company.travel_footprint);
     let adminChart = null
     function displayGraph(currentPage){
-        const labels = company_summaries.slice(currentPage, currentPage + 3).map(company => company.company_name);
-        const travelFootprint = company_summaries.map(company => company.total_footprint);
+        //2(0) + (0 + idx), 2(0) + (idx + 1), 2(0) + 2 + idx
+      const  firstIdx = (2*currentPage + (0 + currentPage));
+       const secondIDx = (2 * currentPage + (1 + currentPage));
+       const thirdIDx = (2 * currentPage + (2 + currentPage));
+
+       console.log('firstIDx =>',firstIdx );
+       console.log('secondIDx =>',secondIDx );
+       console.log('thirdIDx =>',thirdIDx );
+
+        const companyDisplay = [];
+         for(i =0; i<= 2; i++){
+            const curIdx = (2*currentPage + (i + currentPage));
+            if(company_summaries[curIdx]){
+                companyDisplay[i] = company_summaries[curIdx];
+            }
+         }
+         
+        const tablebody = document.getElementById('tablebody');
+        let tablebodyContent = ''
+        for(let i =0; i< companyDisplay.length; i++){
+            
+             tablebodyContent +=    `<tr>
+                <td>${companyDisplay[i].company_name}</td>
+                <td>${(companyDisplay[i].energy_footprint)}</td>
+                <td>${companyDisplay[i].waste_footprint}</td>
+                <td>${companyDisplay[i].travel_footprint}</td>
+                <td>${companyDisplay[i].total_footprint}</td>
+                </tr>`
+              
+        }
+
+        tablebody.innerHTML = tablebodyContent
+        const labels = companyDisplay.map(company => company.company_name);
+        const travelFootprint = companyDisplay.map(company => company.total_footprint);
+       
     const ctx = document.getElementById('summarychart').getContext('2d');
     if(adminChart){
         adminChart.destroy();
@@ -81,6 +112,7 @@ const company_summaries  = {{company_summaries| tojson}};
                     label: 'Total Footprint (kg CO2e)',
                     data: travelFootprint,
                     backgroundColor: 'blue',
+                    maxBarThickness: 100,
                 }
             ],
         },
@@ -127,7 +159,7 @@ const company_summaries  = {{company_summaries| tojson}};
     });
     }
     const active = document.querySelector('.active')
-    let currentPage = !isNaN(Number(active.children[0].textContent)) ? Number(active.children[0].textContent) - 1 : 0 ;
+    let currentPage = !isNaN(Number(active?.children[0]?.textContent)) ? Number(active?.children[0]?.textContent) - 1 : 0 ;
     displayGraph(currentPage)
     document.querySelector('.pagination').addEventListener('click', function(event){
         const curEl = event.target;
@@ -164,10 +196,9 @@ const company_summaries  = {{company_summaries| tojson}};
             currentPage += 1;
             let curActive = document.querySelector(`.${'cur' + (currentPage + 1)}`);
             curActive.classList.add('active')
-            debugger;
             console.log("currentPage =>", currentPage)
               
-            displayGraph(currentPage)
+            displayGraph(currentPage + 1)
             
         }
     })
