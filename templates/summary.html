@@ -1,32 +1,49 @@
 {% extends "base.html" %}
 {% block content %}
   <div class="container">
-     <h2> Summaries</h2>
-     <h3>The companies with least carbon Footprint are shown in increasing order </h3> 
-      <h3>with maximum of three companies in every page</h3>
-        
+   
+
+    <div class="d-flex justify-content-between align-items-center">
+      <h3>Summary of Companies by Different Trends(default: Total Footprints)</h3>
+      <!-- Dropdown for Chart Selection -->
+      
+    </div>
+    <div style="">
+        <select id="footprintDropdown" class="form-select" style=" width: 300px; font-size: 1.2rem; padding: 10px; height: auto;">
+          <option value="total">Total Footprint</option>
+          <option value="energy">Energy Footprint</option>
+          <option value="waste">Waste Footprint</option>
+          <option value="travel">Travel Footprint</option>
+        </select>
+      </div>
      
+     <p style=" padding: 10px; border-radius: 5px; font-weight: bold; font-size: 1.2rem; color: #B22222;">
+        The companies in ascending order of their <span id="trend" style="background-color: #f9f9a1; text-decoration: underline;">Total Footprint</span> with maximum of five companies in every page
+    </p>
+        
+    
      <div>
-        <p style="font-size: 1.5rem; font-weight: bold;">Best performing company in terms of controlling carbon emission is <span style="color: green; border: white 1px solid; background-color: antiquewhite;">{{company_summaries[0].company_name}}</span></p>
+        <p style="font-size: 1.5rem; font-weight: bold;">Best performing company in terms of controlling <span id ="trendSelected" style="background-color: #FFB74D;">Total FootPrint</span> is <span style="color: green; border: white 1px solid; background-color: antiquewhite;" class="bestCompany">{{company_summaries[0].company_name}}</span></p>
      </div>
-     <canvas id="summarychart" class="summarychart" width="800" height="400"></canvas>
-     <nav aria-label="...">
-        <ul class="pagination">
-          
-        </ul>
-      </nav>
+     <canvas id="summarychart" class="summarychart" width="500" height="200"></canvas>
+     
       <table class="table">
         <thead>
              <th>Company</th>
-             <th>Energy Footprint</th>
-             <th>Waste Footprint</th>
-             <th>Travel Footprint</th>
-             <th class="active">Total Footprint</th>
+             <th class="energy_footprint">Energy Footprint</th>
+             <th class="waste_footprint">Waste Footprint</th>
+             <th class="travel_footprint">Travel Footprint</th>
+             <th class="total_footprint">Total Footprint</th>
         </thead>
         <tbody id="tablebody">
            
         </tbody>
      </table>
+     <nav aria-label="...">
+        <ul class="pagination">
+          
+        </ul>
+      </nav>
   </div>
   
 
@@ -40,9 +57,15 @@
 //     { company_name: "clean energy", energy_footprint: 75000, waste_footprint: 1200, travel_footprint: 4000, total_footprint: 80200 },
 //     { company_name: "solarpower", energy_footprint: 62000, waste_footprint: 1900, travel_footprint: 2100, total_footprint: 66000 },
 //     { company_name: "greentech innovators", energy_footprint: 58000, waste_footprint: 1700, travel_footprint: 2900, total_footprint: 62600 },
-// ];
-const company_summaries  = {{company_summaries| tojson}};
-    const pag_number = Math.ceil(company_summaries.length/3);
+// ]; 
+  const trendColors = {
+    total_footprint: '#1A237E',
+    energy_footprint: '#FFB74D',
+    waste_footprint: '#FFEB3B',
+    travel_footprint: '#8D6E63',
+  }
+    const company_summaries  = {{company_summaries| tojson}};
+    const pag_number = Math.ceil(company_summaries.length/5);
     if(pag_number > 1){
         const pagination = document.querySelector('.pagination');
     let pagEl = '<li class="page-item "><span class="page-link">Previous</span></li>'
@@ -57,25 +80,28 @@ const company_summaries  = {{company_summaries| tojson}};
     pagEl += '<li class="page-item"><a class="page-link" href="#">Next</a></li>'
     pagination.innerHTML = pagEl;
     }
-    
+    const activeTrend = {active: 'total_footprint'};
     console.log("company summary =>", company_summaries)
     
     // const energyData = company_summaries.map(company => company.energy_footprint);
     // const wasteData = company_summaries.map(company => company.waste_footprint);
     // const travelData = company_summaries.map(company => company.travel_footprint);
+    let activeTable = document.querySelector('.total_footprint')
+    activeTable.classList.add('activeTable');
     let adminChart = null
-    function displayGraph(currentPage){
+    // function to display the bar chart based on the selected trend
+    function displayGraph(currentPage, curEl = 'total_footprint'){
         //2(0) + (0 + idx), 2(0) + (idx + 1), 2(0) + 2 + idx
-      const  firstIdx = (2*currentPage + (0 + currentPage));
-       const secondIDx = (2 * currentPage + (1 + currentPage));
-       const thirdIDx = (2 * currentPage + (2 + currentPage));
+    //   const  firstIdx = (2*currentPage + (0 + currentPage));
+    //    const secondIDx = (2 * currentPage + (1 + currentPage));
+    //    const thirdIDx = (2 * currentPage + (2 + currentPage));
 
-       console.log('firstIDx =>',firstIdx );
-       console.log('secondIDx =>',secondIDx );
-       console.log('thirdIDx =>',thirdIDx );
+    //    console.log('firstIDx =>',firstIdx );
+    //    console.log('secondIDx =>',secondIDx );
+    //    console.log('thirdIDx =>',thirdIDx );
 
         const companyDisplay = [];
-         for(i =0; i<= 2; i++){
+         for(i =0; i<= 4; i++){
             const curIdx = (2*currentPage + (i + currentPage));
             if(company_summaries[curIdx]){
                 companyDisplay[i] = company_summaries[curIdx];
@@ -104,7 +130,11 @@ const company_summaries  = {{company_summaries| tojson}};
 
         tablebody.innerHTML = tablebodyContent
         const labels = companyDisplay.map(company => company.company_name);
-        const travelFootprint = companyDisplay.map(company => company.total_footprint);
+        const activedataTrend = companyDisplay.map(company => company[curEl]);
+         function capilizeword(word){
+            return word[0].toUpperCase() + word.slice(1)
+         }
+        const curActiveTrend = curEl ? curEl?.split('_')?.map(word => capilizeword(word)).join(' ') : ''
        
     const ctx = document.getElementById('summarychart').getContext('2d');
     if(adminChart){
@@ -117,10 +147,10 @@ const company_summaries  = {{company_summaries| tojson}};
             datasets: [
             
                 {
-                    label: 'Total Footprint (kg CO2e)',
-                    data: travelFootprint,
-                    backgroundColor: 'blue',
-                    maxBarThickness: 100,
+                    label: `${curActiveTrend} (kg CO2e)`,
+                    data: activedataTrend,
+                    backgroundColor: `${trendColors[curEl]}`,
+                    maxBarThickness: 30,
                 }
             ],
         },
@@ -134,7 +164,7 @@ const company_summaries  = {{company_summaries| tojson}};
                             text: 'Companies'
                         },
                         align: 'middle',
-                        color: 'black',
+                        color: `${trendColors[curEl]}`,
                         font: {
                           size: 14,
                           weight: 'bold'
@@ -144,10 +174,10 @@ const company_summaries  = {{company_summaries| tojson}};
                     beginAtZero: true,
                     title: {
                             display: true,
-                            text: "Travel Footprint (kg CO2e)"
+                            text: `${curActiveTrend} (kg CO2e)`
                         },
                         align: 'middle',
-                        color: 'black',
+                        color: `${trendColors[curEl]}`,
                         font: {
                           size: 14,
                           weight: 'bold'
@@ -167,8 +197,10 @@ const company_summaries  = {{company_summaries| tojson}};
     });
     }
     const active = document.querySelector('.active')
+    
     let currentPage = !isNaN(Number(active?.children[0]?.textContent)) ? Number(active?.children[0]?.textContent) - 1 : 0 ;
-    displayGraph(currentPage)
+    displayGraph(currentPage, activeTrend[active])
+    const trends = {'total' : 0, 'energy': 1, 'waste' : 2, 'travel' : 3}
     document.querySelector('.pagination').addEventListener('click', function(event){
         const curEl = event.target;
         console.log('curEl =>', curEl);
@@ -178,7 +210,7 @@ const company_summaries  = {{company_summaries| tojson}};
             let curActive = document.querySelector(`.${'cur' + curEl.textContent}`);
             curActive?.classList?.add('active')
             currentPage = Number(curEl.textContent) - 1;
-            displayGraph(currentPage)
+            displayGraph(currentPage, activeTrend[active])
         }
         if(curEl.textContent === 'Previous'){
             if(currentPage == 0){
@@ -190,7 +222,7 @@ const company_summaries  = {{company_summaries| tojson}};
             let curActive = document.querySelector(`.${'cur' + currentPage}`);
             curActive?.classList?.add('active')
             currentPage -= 1;           
-            displayGraph(currentPage)
+            displayGraph(currentPage, activeTrend[active])
             
         }
         if(curEl.textContent === 'Next'){
@@ -206,10 +238,41 @@ const company_summaries  = {{company_summaries| tojson}};
             curActive.classList.add('active')
             console.log("currentPage =>", currentPage)
               
-            displayGraph(currentPage)
+            displayGraph(currentPage, activeTrend[active])
             
         }
     })
+    const dropdown = document.querySelector('#footprintDropdown');
+     dropdown.addEventListener('change', function(e){
+        console.log(e.target.value)
+        const selectedValue = e.target.value + '_footprint';
+        currentPage = 0
+        // sortArray(selectedValue+'_footprint');
+        // change the active trend 
+        activeTrend[active] = selectedValue;
+        // sort the array based on the selected Trend
+        company_summaries.sort((a, b) => a[selectedValue] - b[selectedValue]);
+        let tableActive = document.querySelector('.activeTable')
+          tableActive.classList.remove('activeTable')
+        
+           document.querySelector(`.${selectedValue}`)?.classList?.add('activeTable');
+        
+        console.log('selectedValue =>', selectedValue);
+        console.log('sorted company array: =>', company_summaries);
 
+        function capilizeword(word){
+            return word[0].toUpperCase() + word.slice(1)
+         }
+        const curActiveTrend = selectedValue ? selectedValue?.split('_')?.map(word => capilizeword(word)).join(' ') : ''
+        // display the graph with selected trend
+        const trend = document.querySelector('#trend')
+        trend.textContent = curActiveTrend;
+        const trendSelected = document.querySelector('#trendSelected');
+        trendSelected.textContent = curActiveTrend
+        const bestCompany = document.querySelector('.bestCompany');
+        bestCompany.textContent = company_summaries[0].company_name;
+        displayGraph(currentPage, activeTrend[active])
+        
+     })
  </script>
 {% endblock %}
