@@ -5,18 +5,7 @@
      <h3>The companies with least carbon Footprint are shown in increasing order </h3> 
       <h3>with maximum of three companies in every page</h3>
         
-     <table class="table">
-        <thead>
-             <th>Company</th>
-             <th>Energy Footprint</th>
-             <th>Waste Footprint</th>
-             <th>Travel Footprint</th>
-             <th>Total Footprint</th>
-        </thead>
-        <tbody id="tablebody">
-           
-        </tbody>
-     </table>
+     
      <div>
         <p style="font-size: 1.5rem; font-weight: bold;">Best performing company in terms of controlling carbon emission is <span style="color: green; border: white 1px solid; background-color: antiquewhite;">{{company_summaries[0].company_name}}</span></p>
      </div>
@@ -26,7 +15,20 @@
           
         </ul>
       </nav>
+      <table class="table">
+        <thead>
+             <th>Company</th>
+             <th>Energy Footprint</th>
+             <th>Waste Footprint</th>
+             <th>Travel Footprint</th>
+             <th class="active">Total Footprint</th>
+        </thead>
+        <tbody id="tablebody">
+           
+        </tbody>
+     </table>
   </div>
+  
 
  <script>
 //     const company_summaries  = [
@@ -79,13 +81,19 @@ const company_summaries  = {{company_summaries| tojson}};
                 companyDisplay[i] = company_summaries[curIdx];
             }
          }
+         const companyIdx = {}
+         company_summaries.forEach((el, idx)=>{
+            
+              companyIdx[JSON.stringify(el)] = idx;
+              
+         });
          
+        
         const tablebody = document.getElementById('tablebody');
         let tablebodyContent = ''
         for(let i =0; i< companyDisplay.length; i++){
-            
-             tablebodyContent +=    `<tr>
-                <td>${companyDisplay[i].company_name}</td>
+             tablebodyContent +=    ` <tr>
+                <td>${(companyIdx[JSON.stringify(companyDisplay[i])]+1) + '. ' + companyDisplay[i].company_name}</td>
                 <td>${(companyDisplay[i].energy_footprint)}</td>
                 <td>${companyDisplay[i].waste_footprint}</td>
                 <td>${companyDisplay[i].travel_footprint}</td>
@@ -198,7 +206,7 @@ const company_summaries  = {{company_summaries| tojson}};
             curActive.classList.add('active')
             console.log("currentPage =>", currentPage)
               
-            displayGraph(currentPage + 1)
+            displayGraph(currentPage)
             
         }
     })
