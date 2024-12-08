@@ -1,18 +1,70 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="backgroundimage">
+<div class="">
 <div class="container " style=" margin-left: 20px;">
     <p style="font-weight: bolder; padding-top: 10px; font-size: 1.2rem;">Register your details to use the carbon foot print generator</p>
 <form method="POST" class="registrationForm">
     {# This hidden_tag is a CSRF security feature. #}
     {{ form.hidden_tag() }}
     {{ form.email.label }} {{ form.email() }}<br>
+     <p class="emailError" style="color: red"></p>
     {{ form.username.label }} {{ form.username() }}<br>
+    <p class="userNameError" style="color: red"></p>
     {{ form.company_name.label }} {{ form.company_name() }}<br>
+    <p class="companyNameError" style="color: red"></p>
     {{ form.password.label }} {{ form.password() }}<br>
     {{ form.pass_confirm.label }} {{ form.pass_confirm() }}<br>
     {{ form.submit() }}
 </form>
 </div>
 </div>
+<script>
+    const messages  = {{ get_flashed_messages(with_categories=true) | tojson }};
+    console.log('message =>', messages);
+    
+    // if(document.referrer == window.location.href){
+    //     console.log('reloaded')
+    // }else{
+    //     console.log('not reloaded');
+    // }
+    const emailError = document.querySelector('.emailError');
+    const userNameError = document.querySelector('.userNameError');
+    const companyNameError = document.querySelector('.companyNameError');
+    for(let i = 0; i < messages.length; i++){
+        const message = messages[i];
+        if(message[0] == 'emailDanger'){
+           
+           if(emailError){
+            emailError.style.display = 'block'
+            emailError.innerHTML = message[1]
+           }
+        }
+        if(message[0] == 'userNamedanger'){
+          
+           if(userNameError){
+            userNameError.style.display = 'block'
+            userNameError.innerHTML = message[1]
+           }
+        }
+        if(message[0] == 'companyNameDanger'){
+   
+           if(companyNameError){
+            companyNameError.style.display = 'block'
+            companyNameError.innerHTML = message[1]
+           }
+        }
+    }
+
+    const inputFields = document.querySelectorAll('input');
+    inputFields.forEach(input =>{
+        input.addEventListener('click', function(e){
+            if(e.target?.name == 'email' || e.target?.name == 'username' || e.target?.name === 'company_name'){
+                emailError.style.display = 'none'
+                userNameError.style.display = 'none'
+                companyNameError.style.display = 'none'
+            }
+        })
+    })
+  
+</script>
 {% endblock %}

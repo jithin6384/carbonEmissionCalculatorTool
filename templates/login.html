@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
+
 <div class="container" style="margin-top: 20px; margin-left: 20px;">
    <p>Please enter your credentials and login to fill the energy expenditure of your company</p>
     <form method="POST">
@@ -12,11 +13,36 @@
         <div class="form-group">
            {{ form.password.label }} {{ form.password() }}
         </div>
-       
+        {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div>
+      {% for category, message in messages %}
+        {% if category == 'danger' %}
+          <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
         {{ form.submit() }}
     </form>
-
+    
     
 </div>
+<script>
+    // const messages  = {{ get_flashed_messages(with_categories=true) | tojson }};
+    // console.log("messages =>", messages)
 
+    const close = document.querySelector('.close');
+    if(close){
+        close.addEventListener('click', function(e){
+            document.querySelector('.alert-danger').classList.remove('show')
+        })
+    }
+</script>
 {% endblock %}

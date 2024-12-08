@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, session
 import os
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
@@ -253,35 +253,39 @@ def welcome_user():
 @login_required
 def logout():
     logout_user()
-    flash('You logged out!')
+   
     return redirect(url_for('home'))
 
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-
+    
     form = LoginForm()
     if form.validate_on_submit():
-        
-        user = User.query.filter_by(email=form.email.data).first()
-       
-
-        if user is not None and user.check_password(form.password.data) :
+        try:
+            user = User.query.filter_by(email=form.email.data).first()
         
 
-            login_user(user)
-            flash('Logged in successfully.')
+            if user is not None and user.check_password(form.password.data) :
+            
 
-      
-            next = request.args.get('next')
+                login_user(user)
+                flash('Logged in successfully.', 'success')
 
-            if next == None or not next[0]=='/':
-                if(user.buisness_travel or user.energy_usage or user.waste):
-                  next = url_for('home')
-                else:
-                  next = url_for('welcome_user')
+        
+                next = request.args.get('next')
+                session.pop('_flashes', None)
+                if next == None or not next[0]=='/':
+                    if(user.buisness_travel or user.energy_usage or user.waste):
+                     next = url_for('home')
+                    else:
+                     next = url_for('welcome_user')
 
-            return redirect(next)
+                return redirect(next)
+            else:
+              flash("Invalid username or password. Please try again!", 'danger');
+        except Exception as e:
+              flash(f"An Error occurred: {str(e)} ")
     return render_template('login.html', form=form)
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -289,15 +293,34 @@ def register():
     form = RegistrationForm()
 
     if form.validate_on_submit():
-        user = User(email=form.email.data,
-                    username=form.username.data,
-                    company_name=form.company_name.data,
-                    password=form.password.data)
+        try:
+            existing_userEmail = User.query.filter_by(email=form.email.data).first()
+            # check for existing email 
+            if(existing_userEmail):
+                flash('Email is already registered please use a different Email', 'emailDanger');
+            
+            existing_username = User.query.filter_by(username=form.username.data).first();
+            if(existing_username):
+                flash('Username is already registered please use a different Username', 'userNamedanger');
+               
+            existing_company = User.query.filter_by(company_name=form.company_name.data).first();
+            if(existing_company):
+                flash("Company is already registered please use a different CompanyName", "companyNameDanger")
+            
+            if(existing_userEmail or existing_company or existing_username):
+                return redirect(url_for('register'))
+            user = User(email=form.email.data,
+                        username=form.username.data,
+                        company_name=form.company_name.data,
+                        password=form.password.data)
 
-        db.session.add(user)
-        db.session.commit()
-        flash('Thanks for registering! Now you can login!')
-        return redirect(url_for('login'))
+            db.session.add(user)
+            db.session.commit()
+            flash('Thanks for registering! Now you can login!')
+            return redirect(url_for('login'))
+        except Exception as e:
+            db.session.rollback();
+            flash(f'An error occured during registration: {str(e)}', 'danger')
     return render_template('register.html', form=form)
 
 @app.route('/summary', methods=['GET'])
@@ -308,8 +331,9 @@ def summary():
     print('users => ', users)
     for user in users:
         print('user company name', user.company_name)
-        if user.company_name:
+        if user.company_name and (user.energy_usage is not None or user.waste is not None or user.buisness_travel is not None) :
             company_data = {'energy_footprint': 0, 'waste_footprint' : 0, 'travel_footprint' : 0, 'total_footprint': 0, 'company_name' :  user.company_name}
+            
             if user.energy_usage:
                 electricity_bill =  user.energy_usage.electricity_bill
                 fuel_bill = user.energy_usage.fuel_bill

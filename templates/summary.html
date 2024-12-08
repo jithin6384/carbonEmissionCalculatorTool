@@ -103,8 +103,9 @@
         const companyDisplay = [];
          for(i =0; i<= 4; i++){
             const curIdx = (2*currentPage + (i + currentPage));
-            if(company_summaries[curIdx]){
-                companyDisplay[i] = company_summaries[curIdx];
+            if(company_summaries[curIdx] && company_summaries[curIdx][curEl]){
+           
+                companyDisplay.push(company_summaries[curIdx]);
             }
          }
          const companyIdx = {}
