@@ -195,52 +195,85 @@ def welcome_user():
     form = QuestionaireForm();
     if(form.validate_on_submit()):
          # check if energy_usage,waste business travel for present user already exists
-        energy_usage = EnergyUsage.query.filter_by(user_id=current_user.id).first()
-        waste = Waste.query.filter_by(user_id=current_user.id).first()
-        business_travel = BuisnessTravel.query.filter_by(user_id=current_user.id).first()
-         
-        # if users doesn't exist
-        if not energy_usage:
-            energy_usage = EnergyUsage(
-                electricity_bill=form.electricity_bill.data,
-                natural_gas_bill=form.natural_gas_bill.data,
-                fuel_bill=form.fuel_bill.data,
-                user_id=current_user.id
-            )
-            db.session.add(energy_usage)
-        else:
-            energy_usage.electricity_bill = form.electricity_bill.data
-            energy_usage.natural_gas_bill = form.natural_gas_bill.data
-            energy_usage.fuel_bill = form.fuel_bill.data
+        try:
+            # checking negative values in energy usage
+            if ((form.electricity_bill.data <= 0) or (form.natural_gas_bill.data <= 0) or (form.fuel_bill.data <= 0)):
+                if(form.electricity_bill.data <= 0):
+                    flash('Electricity bill cannot be negative or zero',  "electricityError");
+                if(form.natural_gas_bill.data <= 0):
+                    flash('Natural gas bill cannot be negative or zero',  "naturalGasError");
+                if(form.fuel_bill.data <= 0):
+                    flash('Fuel bill cannot be negative or zero',  "fuelError");
+                
+                
+            # checking negative values in waste generated
+            if ((form.waste_generated.data <= 0) or (form.recycling_percentage.data <= 0)):
+                if((form.waste_generated.data <= 0)):
+                    flash("Waste values cannot be negative or zero.", "wasteDanger");
+                if((form.recycling_percentage.data <= 0)):
+                    flash("Recycling percentage values cannot be negative or zero.", "recyclingDanger");
+                
+               
+            
+            # checking negative values in kilometers travelled and fuel efficiency
+            if ((form.kilometers_traveled.data <= 0) or (form.fuel_efficiency.data <= 0)):
+                if(form.kilometers_traveled.data <= 0):
+                    flash("Distance travelled cannot be negative or zero.", "travelDanger");
+                if(form.fuel_efficiency.data <= 0):
+                    flash("fuel efficiency cannot be negative or zero.", "fuelEfficiencyError");
 
-        # Handle Waste
-        if not waste:
-            waste = Waste(
-                waste_generated=form.waste_generated.data,
-                recycling_percantage=form.recycling_percentage.data,
-                user_id=current_user.id
-            )
-            db.session.add(waste)
-        else:
-            waste.waste_generated = form.waste_generated.data
-            waste.recycling_percantage = form.recycling_percentage.data
-        
-         # Handle Business Travel
-        if not business_travel:
-            business_travel = BuisnessTravel(
-                kilometer_traveled=form.kilometers_traveled.data,
-                fuel_efficiency=form.fuel_efficiency.data,
-                user_id=current_user.id
-            )
-            db.session.add(business_travel)
-        else:
-            business_travel.kilometer_traveled = form.kilometers_traveled.data
-            business_travel.fuel_efficiency = form.fuel_efficiency.data
+            if((form.electricity_bill.data <= 0) or (form.natural_gas_bill.data <= 0) or (form.fuel_bill.data <= 0) or (form.waste_generated.data <= 0) or (form.recycling_percentage.data <= 0) or (form.kilometers_traveled.data <= 0) or (form.fuel_efficiency.data <= 0)):  
+                return redirect(url_for('welcome_user'))
+            
+            energy_usage = EnergyUsage.query.filter_by(user_id=current_user.id).first()
+            waste = Waste.query.filter_by(user_id=current_user.id).first()
+            business_travel = BuisnessTravel.query.filter_by(user_id=current_user.id).first()
+            
+            # if users doesn't exist
+            if not energy_usage:
+                energy_usage = EnergyUsage(
+                    electricity_bill=form.electricity_bill.data,
+                    natural_gas_bill=form.natural_gas_bill.data,
+                    fuel_bill=form.fuel_bill.data,
+                    user_id=current_user.id
+                )
+                db.session.add(energy_usage)
+            else:
+                energy_usage.electricity_bill = form.electricity_bill.data
+                energy_usage.natural_gas_bill = form.natural_gas_bill.data
+                energy_usage.fuel_bill = form.fuel_bill.data
 
-        # Commit all changes
-        db.session.commit()
-        flash('Data submitted successfully!', 'success')
-        return redirect(url_for('home'))
+            # Handle Waste
+            if not waste:
+                waste = Waste(
+                    waste_generated=form.waste_generated.data,
+                    recycling_percantage=form.recycling_percentage.data,
+                    user_id=current_user.id
+                )
+                db.session.add(waste)
+            else:
+                waste.waste_generated = form.waste_generated.data
+                waste.recycling_percantage = form.recycling_percentage.data
+            
+            # Handle Business Travel
+            if not business_travel:
+                business_travel = BuisnessTravel(
+                    kilometer_traveled=form.kilometers_traveled.data,
+                    fuel_efficiency=form.fuel_efficiency.data,
+                    user_id=current_user.id
+                )
+                db.session.add(business_travel)
+            else:
+                business_travel.kilometer_traveled = form.kilometers_traveled.data
+                business_travel.fuel_efficiency = form.fuel_efficiency.data
+
+            # Commit all changes
+            db.session.commit()
+            flash('Data submitted successfully!', 'success')
+            return redirect(url_for('home'))
+        except Exception as e:
+            db.session.rollback();
+            flash(f'An error occured {str(e)}', 'danger');
     
     return render_template('welcome_user.html', form=form)
 

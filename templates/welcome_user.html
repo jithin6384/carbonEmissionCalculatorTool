@@ -8,17 +8,125 @@
       {{ form.hidden_tag() }}
       <h3 style="font-size: 1.5rem; font-weight: 900;">Energy Usage</h3>
        {{form.electricity_bill.label}} {{form.electricity_bill()}} <br>
+       <p class="electricityError text-danger"></p>
        {{form.natural_gas_bill.label}} {{form.natural_gas_bill()}} <br>
+       <p class="naturalGasError text-danger"></p>
        {{form.fuel_bill.label}} {{form.fuel_bill()}} <br>
+       <p class="fuelError text-danger"></p>
       <h3 style="font-size: 1.5rem; font-weight: 900;">Waste Generated </h3>
       {{form.waste_generated.label}} {{form.waste_generated()}} <br>
+      <p class="wasteGeneratedError text-danger"></p>
       {{form.recycling_percentage.label}} {{form.recycling_percentage()}} <br>
+      <p class="recyclingerror text-danger"></p>
       <h3 style="font-size: 1.5rem; font-weight: 900;">Business Travel</h3>
       {{form.kilometers_traveled.label}} {{form.kilometers_traveled()}} <br>
+      <p class="kilometersTraveledError text-danger"></p>
       {{form.fuel_efficiency.label}} {{form.fuel_efficiency()}} <br>
+      <p class="fuelEfficiencyError text-danger"></p>
       {{ form.submit() }}
   </form>
 
 
 </div>
+<script>
+   const messages  = {{ get_flashed_messages(with_categories=true) | tojson }};
+   console.log('message =>', messages);
+
+   const electricityError = document.querySelector('.electricityError');
+   const naturalGasError = document.querySelector('.naturalGasError');
+   const fuelError = document.querySelector('.fuelError');
+   const wasteGeneratedError = document.querySelector('.wasteGeneratedError');
+   const recyclingerror = document.querySelector('.recyclingerror');
+   const kilometersTraveledError = document.querySelector('.kilometersTraveledError');
+   const fuelEfficiencyError = document.querySelector('.fuelEfficiencyError');
+
+   for(let i = 0; i < messages.length; i++){
+        const message = messages[i];
+        if(message[0] == 'electricityError'){
+           
+           if(electricityError){
+            electricityError.style.display = 'block'
+            electricityError.innerHTML = message[1]
+           }
+        }
+        if(message[0] == 'naturalGasError'){
+          
+           if(naturalGasError){
+            naturalGasError.style.display = 'block'
+            naturalGasError.innerHTML = message[1]
+           }
+        }
+        if(message[0] == 'fuelError'){
+   
+           if(fuelError){
+            fuelError.style.display = 'block'
+            fuelError.innerHTML = message[1]
+           }
+        }
+        
+        if(message[0] == 'wasteDanger'){
+   
+        if(wasteGeneratedError){
+          wasteGeneratedError.style.display = 'block'
+          wasteGeneratedError.innerHTML = message[1]
+        }
+      }
+
+      if(message[0] == 'recyclingDanger'){
+   
+      if(recyclingerror){
+        recyclingerror.style.display = 'block'
+        recyclingerror.innerHTML = message[1]
+      }
+    }
+
+    if(message[0] == 'travelDanger'){
+   
+      if(kilometersTraveledError){
+        kilometersTraveledError.style.display = 'block'
+        kilometersTraveledError.innerHTML = message[1]
+      }
+    }
+
+
+    if(message[0] == 'fuelEfficiencyError'){
+   
+      if(fuelEfficiencyError){
+        fuelEfficiencyError.style.display = 'block'
+        fuelEfficiencyError.innerHTML = message[1]
+      }
+    }
+    
+    const inputFields = document.querySelectorAll('input');
+    inputFields.forEach(input =>{
+        input.addEventListener('click', function(e){
+                electricityError.innerHTML = '';
+                electricityError.style.display = 'none';
+
+                naturalGasError.innerHTML = '';
+                naturalGasError.style.display = 'none';
+                
+                fuelError.innerHTML = '';
+                fuelError.style.display = 'none';
+
+                wasteGeneratedError.innerHTML = '';
+                wasteGeneratedError.style.display = 'none';
+
+                recyclingerror.innerHTML = ''
+                recyclingerror.style.display = 'none';
+
+                kilometersTraveledError.innerHTML = '';
+                kilometersTraveledError.style.display = 'none';
+
+                fuelEfficiencyError.innerHTML = '';
+                fuelEfficiencyError.style.display = 'none'
+            
+        })
+    })
+   
+
+
+
+    }
+</script>
 {% endblock %}
