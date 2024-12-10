@@ -19,8 +19,7 @@ pdfkit==1.0.0              # Requires wkhtmltopdf system dependency (if using PD
 # Environment configuration (optional)
 python-dotenv==1.0.0       # To manage environment variables securely
 
-# Error handling (optional)
-Flask-Error-Handler==0.4.2 # For custom error handling if needed
+
 
 # Any additional libraries you specifically use in your code
 
