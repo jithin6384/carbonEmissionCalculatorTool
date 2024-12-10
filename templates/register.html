@@ -6,14 +6,14 @@
 <form method="POST" class="registrationForm">
     {# This hidden_tag is a CSRF security feature. #}
     {{ form.hidden_tag() }}
-    {{ form.email.label }} {{ form.email() }}<br>
+    {{ form.email.label }} {{ form.email() }}
      <p class="emailError" style="color: red"></p>
-    {{ form.username.label }} {{ form.username() }}<br>
+    {{ form.username.label }} {{ form.username() }}
     <p class="userNameError" style="color: red"></p>
-    {{ form.company_name.label }} {{ form.company_name() }}<br>
+    {{ form.company_name.label }} {{ form.company_name() }}
     <p class="companyNameError" style="color: red"></p>
-    {{ form.password.label }} {{ form.password() }}<br>
-    {{ form.pass_confirm.label }} {{ form.pass_confirm() }}<br>
+    {{ form.password.label }} {{ form.password() }}
+    {{ form.pass_confirm.label }} {{ form.pass_confirm() }}
     {{ form.submit() }}
 </form>
 </div>

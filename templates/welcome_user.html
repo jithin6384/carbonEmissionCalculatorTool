@@ -7,21 +7,21 @@
       {# This hidden_tag is a CSRF security feature. #}
       {{ form.hidden_tag() }}
       <h3 style="font-size: 1.5rem; font-weight: 900;">Energy Usage</h3>
-       {{form.electricity_bill.label}} {{form.electricity_bill()}} <br>
+       {{form.electricity_bill.label}} {{form.electricity_bill()}} 
        <p class="electricityError text-danger"></p>
-       {{form.natural_gas_bill.label}} {{form.natural_gas_bill()}} <br>
+       {{form.natural_gas_bill.label}} {{form.natural_gas_bill()}} 
        <p class="naturalGasError text-danger"></p>
-       {{form.fuel_bill.label}} {{form.fuel_bill()}} <br>
+       {{form.fuel_bill.label}} {{form.fuel_bill()}} 
        <p class="fuelError text-danger"></p>
       <h3 style="font-size: 1.5rem; font-weight: 900;">Waste Generated </h3>
-      {{form.waste_generated.label}} {{form.waste_generated()}} <br>
+      {{form.waste_generated.label}} {{form.waste_generated()}} 
       <p class="wasteGeneratedError text-danger"></p>
-      {{form.recycling_percentage.label}} {{form.recycling_percentage()}} <br>
+      {{form.recycling_percentage.label}} {{form.recycling_percentage()}} 
       <p class="recyclingerror text-danger"></p>
       <h3 style="font-size: 1.5rem; font-weight: 900;">Business Travel</h3>
-      {{form.kilometers_traveled.label}} {{form.kilometers_traveled()}} <br>
+      {{form.kilometers_traveled.label}} {{form.kilometers_traveled()}} 
       <p class="kilometersTraveledError text-danger"></p>
-      {{form.fuel_efficiency.label}} {{form.fuel_efficiency()}} <br>
+      {{form.fuel_efficiency.label}} {{form.fuel_efficiency()}} 
       <p class="fuelEfficiencyError text-danger"></p>
       {{ form.submit() }}
   </form>
