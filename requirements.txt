@@ -1,21 +1,12 @@
-# Core Flask framework for building the web app
-Flask==2.3.2
-
-# Optional: Flask extensions (use based on your project’s specific needs)
-Flask-WTF==1.0.1           # Form handling (only if you have user input forms)
-Flask-Login==0.6.2         # User session management, if required
-
-
-
-# Report generation libraries
-reportlab==3.6.13          # For PDF report generation (optional)
-xlsxwriter==3.1.6          # For Excel report generation (optional)
-pdfkit==1.0.0              # Requires wkhtmltopdf system dependency (if using PDF generation)
-
-# Environment configuration (optional)
-python-dotenv==1.0.0       # To manage environment variables securely
-
-
-
-# Any additional libraries you specifically use in your code
+Flask==2.2.5
+Flask-WTF==1.0.1
+Flask-Login==0.6.2
+Flask-SQLAlchemy==2.5.1
+Flask-Migrate==4.0.4
+SQLAlchemy==1.4.49
+Werkzeug==2.2.3
+python-dotenv==1.0.0
+reportlab==3.6.13
+xlsxwriter==3.1.6
+pdfkit==1.0.0
 

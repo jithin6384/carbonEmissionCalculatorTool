@@ -391,4 +391,4 @@ def summary():
     company_summaries = sorted(company_summaries, key= lambda x: x["total_footprint"])
     return  render_template('summary.html', company_summaries = company_summaries);
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=False)
