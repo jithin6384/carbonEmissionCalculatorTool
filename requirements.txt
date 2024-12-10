@@ -5,11 +5,7 @@ Flask==2.3.2
 Flask-WTF==1.0.1           # Form handling (only if you have user input forms)
 Flask-Login==0.6.2         # User session management, if required
 
-# Data handling and analysis libraries
-pandas==2.1.1              # For data manipulation
-numpy==1.26.0              # For numerical calculations
-matplotlib==3.8.0          # For plotting data (optional)
-seaborn==0.12.2            # For enhanced data visualization (optional)
+
 
 # Report generation libraries
 reportlab==3.6.13          # For PDF report generation (optional)
