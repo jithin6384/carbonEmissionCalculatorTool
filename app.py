@@ -19,10 +19,8 @@ app = Flask(__name__)
 
 app.config['SECRET_KEY'] = 'mysecretkey'
 if(os.getenv('RENDER')):
-    db_path = "/var/data/data.sqlite"
-    if not os.path.exists('/var/data'):
-        os.makedirs('/var/data')  
-    app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
+    basedir = os.path.abspath(os.path.dirname(__file__))
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'data.sqlite')
 else:
     basedir = os.path.abspath(os.path.dirname(__file__))
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'data.sqlite')
