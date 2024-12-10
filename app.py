@@ -121,12 +121,14 @@ def home():
     # print("current user  business travel => ", current_user.buisness_travel);
     # f"energy usage is {self.electricity_bill} and {self.fuel_bill} and {self.natural_gas_bill}"
     # calculating energy usage for the current user
-    electricity_bill = 0;
-    fuel_bill = 0;
-    natural_gas_bill = 0;
-    energy_footprint = 0;
-    carbon_data = {};
-    suggestions = [];
+    electricity_bill = 0
+    fuel_bill = 0
+    natural_gas_bill = 0
+    energy_footprint = 0
+    waste_footprint = 0  # Ensure waste_footprint is initialized
+    travel_footprint = 0  # Ensure travel_footprint is initialized
+    carbon_data = {}
+    suggestions = []
     company_name = ''
     print("current user is authenticated =>", current_user.is_authenticated);
     if(current_user.is_authenticated):
