@@ -21,7 +21,7 @@ def generate_report():
         print("Incorrect password. Access denied.")
         sys.exit(1)
 
-    print(f"User verified: {user.username}, Company: {user.company_name}")
+    
 
     
     energy_footprint = 0
