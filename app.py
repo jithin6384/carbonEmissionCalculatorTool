@@ -171,19 +171,25 @@ def home():
         if fuel_bill > 1000:
             suggestions[0]["energy_footprint"].append("Use public transport, carpool, or switch to electric vehicles.")
         
+        if(electricity_bill <= 5000 and natural_gas_bill <= 1000 and fuel_bill):
+            suggestions[0]["energy_footprint"].append("No Suggestions you are doing good in controlling energy footprint")
         # Waste Reduction Suggestions
-        if recycling_percentage < 50:
-            
-            suggestions[0]["waste_footprint"].append("Increase recycling efforts and compost organic waste.")
-        if waste_generated > 100:
-            suggestions[0]["waste_footprint"].append("Reduce single-use plastics and re-use products.")
+        if waste_generated > 0:
+            if recycling_percentage < 50:
+                
+                suggestions[0]["waste_footprint"].append("Increase recycling efforts and compost organic waste.")
+            if waste_generated > 100:
+                suggestions[0]["waste_footprint"].append("Reduce single-use plastics and re-use products.")
+        else:
+           suggestions[0]["waste_footprint"].append("No suggestion Waste generation is handled well")
 
         # Business Travel Suggestions
         if travel_distance > 10000:
             suggestions[0]["travel_footprint"].append("Reduce travel through virtual meetings.")
         if fuel_efficiency > 8:
            suggestions[0]["travel_footprint"].append("Switch to fuel-efficient or electric vehicles.")
-
+        if(travel_distance <= 10000 and fuel_efficiency < 8 ):
+            suggestions[0]["travel_footprint"].append("No suggestions You are doing well in controlling travel footprint.")
     
         carbon_data = { 
             "categories": ["energy_footprint", "waste_footprint", "travel_footprint", ],
@@ -253,13 +259,13 @@ def welcome_user():
             # Handle Waste
             if not waste:
                 waste = Waste(
-                    waste_generated=form.waste_generated.data,
+                    waste_generated=(form.waste_generated.data if  (form.recycling_percentage.data < 57) else  0) ,
                     recycling_percantage=form.recycling_percentage.data,
                     user_id=current_user.id
                 )
                 db.session.add(waste)
             else:
-                waste.waste_generated = form.waste_generated.data
+                waste.waste_generated = form.waste_generated.data if  (form.recycling_percentage.data < 57) else  0
                 waste.recycling_percantage = form.recycling_percentage.data
             
             # Handle Business Travel

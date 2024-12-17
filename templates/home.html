@@ -27,11 +27,11 @@
 <script>
     console.log("here ----------")
     
-    const suggestions = {{suggestions| tojson}};
+    const suggestions = JSON.parse('{{ suggestions | tojson | safe }}');
     const companyName = `{{company_name}}`;
     console.log("suggestions ==>", suggestions);
     console.log("company Name =>", companyName);
-    const carbonData = {{ carbon_data|tojson }};
+    const carbonData = JSON.parse('{{ carbon_data | tojson | safe }}');
     console.log(carbonData);
     let {values, categories} = carbonData
     let i,j,k;
@@ -64,24 +64,7 @@
 
 
 
-    // if(values[0] < values[1] && values[0] < values[2]){
-    //   i = 0
-    //   if(values[1] <= values[2]){
-    //     j = 1;
-    //     k = 2;
-    //   }else{
-    //     j = 2;
-    //     k = 1;
-    //   }
-    // }
-    // if(values[1] < values[2] && values[1] < values[0]){
-    //   j = 0;
-    //   if(values[2] <= values[1]){
-         
-    //   }else{
-
-    //   }
-    // }
+    
     const carbonChartId = document.querySelector('#carbonchart')
     const context = carbonChartId.getContext('2d');
     const carbonChart = new Chart(context, {
