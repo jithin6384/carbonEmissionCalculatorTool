@@ -46,3 +46,5 @@ WTForms==2.1
 XlsxWriter==3.1.6
 zipp==3.20.2
 email-validator
+plotly
+
