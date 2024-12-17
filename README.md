@@ -68,4 +68,4 @@ How to setup the project in Windows, Mac and Linux
 
     live url: https://carbonemissioncalculatortool.onrender.com/register (set using in Render.com)
               http://198.199.83.64:8000/register deployed using digital ocean droplet 
- 
+ 8. Example charts generated using javascript and python are attached in this carbon_data.pdf and globalcorp_carbon_data.html
